@@ -1,0 +1,15 @@
+# Increase upload limit
+php_value upload_max_filesize 31G
+php_value post_max_size 31G
+php_value memory_limit 1G
+php_value max_execution_time 3600
+php_value max_input_time 3600
+
+# Prevent direct access to sensitive files
+<FilesMatch "^(database|config)">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Disable directory listing
+Options -Indexes 
