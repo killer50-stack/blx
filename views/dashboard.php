@@ -47,6 +47,13 @@ try {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
 </head>
 <body>
+    <!-- Vídeo de fundo -->
+    <video autoplay muted loop class="background-video">
+        <source src="https://v1.pinimg.com/videos/mc/720p/2f/6b/d5/2f6bd5029e2b3bb71438747562c33bd8.mp4" type="video/mp4">
+        Seu navegador não suporta vídeos HTML5.
+    </video>
+    <div class="background-overlay"></div>
+    
     <header>
         <h1><?php echo SITE_NAME; ?></h1>
     </header>

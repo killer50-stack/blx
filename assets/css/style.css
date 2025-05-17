@@ -25,6 +25,30 @@ body {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    position: relative;
+}
+
+/* Vídeo de fundo */
+.background-video {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -1;
+    opacity: 0.7;
+}
+
+/* Overlay para o fundo */
+.background-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(105, 82, 72, 0.4);
+    z-index: -1;
 }
 
 header {
@@ -32,6 +56,8 @@ header {
     color: var(--text-light);
     padding: 1rem 2rem;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    position: relative;
+    z-index: 1;
 }
 
 .container {
@@ -40,6 +66,8 @@ header {
     margin: 0 auto;
     padding: 1rem;
     flex: 1;
+    position: relative;
+    z-index: 1;
 }
 
 h1, h2, h3 {
@@ -87,7 +115,7 @@ header h1 {
 
 /* Upload form */
 .upload-form {
-    background-color: var(--background-medium);
+    background-color: rgba(239, 235, 233, 0.9);
     padding: 1.5rem;
     border-radius: 8px;
     margin-bottom: 2rem;
@@ -126,7 +154,7 @@ input[type="file"] {
 }
 
 .file-card {
-    background-color: white;
+    background-color: rgba(255, 255, 255, 0.9);
     border-radius: 8px;
     overflow: hidden;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
@@ -187,7 +215,7 @@ input[type="file"] {
 
 /* Storage stats */
 .storage-stats {
-    background-color: var(--background-medium);
+    background-color: rgba(239, 235, 233, 0.9);
     padding: 1rem;
     border-radius: 8px;
     margin-bottom: 1.5rem;
@@ -229,7 +257,7 @@ input[type="file"] {
 
 /* Viewer styles */
 .viewer-container {
-    background-color: white;
+    background-color: rgba(255, 255, 255, 0.9);
     border-radius: 8px;
     overflow: hidden;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
@@ -287,6 +315,8 @@ footer {
     text-align: center;
     padding: 1rem;
     margin-top: auto;
+    position: relative;
+    z-index: 1;
 }
 
 .loader {

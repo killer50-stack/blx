@@ -9,6 +9,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const alertContainer = document.querySelector('.alert-container');
     const loader = document.querySelector('.loader');
     
+    // Detectar a página atual para determinar caminhos relativos corretos
+    const isInSubdirectory = window.location.pathname.includes('/views/');
+    const basePath = isInSubdirectory ? '../' : '';
+    
+    console.log('Caminho base detectado:', basePath);
+    
     // Atualizar a barra de armazenamento
     function updateStorageBar(percentage) {
         if (storageBar) {
@@ -34,6 +40,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Mostrar mensagens de alerta
     function showAlert(message, type = 'error') {
         if (!alertContainer) return;
+        
+        console.log('Alerta:', type, message);
         
         // Limpar alertas anteriores
         alertContainer.innerHTML = '';
@@ -61,6 +69,28 @@ document.addEventListener('DOMContentLoaded', function() {
                 alertContainer.removeChild(alert);
             }
         }, 5000);
+    }
+    
+    // Função auxiliar para analisar respostas do servidor
+    function parseServerResponse(xhr) {
+        try {
+            return JSON.parse(xhr.responseText);
+        } catch (e) {
+            console.error('Erro ao processar JSON:', e);
+            console.log('Resposta do servidor:', xhr.responseText);
+            
+            // Tentar extrair mensagem de erro de HTML caso o servidor retorne HTML
+            let errorMessage = 'Erro ao processar resposta do servidor';
+            
+            if (xhr.responseText.includes('<br') || xhr.responseText.includes('<p')) {
+                errorMessage += ': O servidor retornou HTML em vez de JSON. Verifique os logs do servidor.';
+            } else if (xhr.responseText.trim() !== '') {
+                errorMessage += ': ' + xhr.responseText.substring(0, 100);
+                if (xhr.responseText.length > 100) errorMessage += '...';
+            }
+            
+            throw new Error(errorMessage);
+        }
     }
     
     // Gerenciar upload de arquivos
@@ -110,9 +140,11 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Configurar evento de conclusão
             xhr.addEventListener('load', function() {
+                console.log('Resposta do servidor:', xhr.status, xhr.responseText);
+                
                 if (xhr.status === 200) {
                     try {
-                        const response = JSON.parse(xhr.responseText);
+                        const response = parseServerResponse(xhr);
                         if (response.success) {
                             // Limpar formulário
                             uploadForm.reset();
@@ -128,7 +160,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             showAlert(response.message);
                         }
                     } catch (e) {
-                        showAlert('Erro ao processar resposta do servidor');
+                        showAlert(e.message);
                     }
                 } else {
                     showAlert('Erro ao enviar arquivo: ' + xhr.statusText);
@@ -147,7 +179,8 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             
             // Configurar evento de erro
-            xhr.addEventListener('error', function() {
+            xhr.addEventListener('error', function(e) {
+                console.error('Erro de conexão:', e);
                 showAlert('Erro de conexão ao enviar arquivo');
                 if (progressContainer) {
                     progressBar.style.width = '0%';
@@ -158,8 +191,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
             
+            // Usar o caminho do formulário em vez de determinar programaticamente
+            const uploadUrl = uploadForm.getAttribute('action');
+            console.log('URL de upload:', uploadUrl);
+            
             // Enviar requisição
-            xhr.open('POST', 'upload.php', true);
+            xhr.open('POST', uploadUrl, true);
             xhr.send(formData);
         });
     }
@@ -175,7 +212,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     // Enviar requisição para excluir arquivo
                     const xhr = new XMLHttpRequest();
-                    xhr.open('POST', 'delete.php', true);
+                    const deleteUrl = basePath + 'delete.php';
+                    console.log('URL de exclusão:', deleteUrl);
+                    
+                    xhr.open('POST', deleteUrl, true);
                     xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
                     
                     if (loader) {
@@ -183,9 +223,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                     
                     xhr.addEventListener('load', function() {
+                        console.log('Resposta do servidor (exclusão):', xhr.status, xhr.responseText);
+                        
                         if (xhr.status === 200) {
                             try {
-                                const response = JSON.parse(xhr.responseText);
+                                const response = parseServerResponse(xhr);
                                 if (response.success) {
                                     // Remover elemento da interface
                                     const fileCard = button.closest('.file-card');
@@ -204,7 +246,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                     showAlert(response.message);
                                 }
                             } catch (e) {
-                                showAlert('Erro ao processar resposta do servidor');
+                                showAlert(e.message);
                             }
                         } else {
                             showAlert('Erro ao excluir arquivo: ' + xhr.statusText);
@@ -215,7 +257,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                     });
                     
-                    xhr.addEventListener('error', function() {
+                    xhr.addEventListener('error', function(e) {
+                        console.error('Erro de conexão (exclusão):', e);
                         showAlert('Erro de conexão ao excluir arquivo');
                         if (loader) {
                             loader.style.display = 'none';

@@ -5,7 +5,10 @@ define('BASE_URL', 'http://localhost/Nova%20pasta%20(6)');
 define('MAX_UPLOAD_SIZE', 31457280000); // 29 GB em bytes
 define('MAX_STORAGE_SIZE', 1072668082176); // 999 GB em bytes
 define('ALLOWED_TYPES', ['image/jpeg', 'image/png', 'image/gif', 'video/mp4', 'video/webm', 'video/ogg', 'application/pdf']);
-define('UPLOADS_DIR', __DIR__ . '/../uploads/files/');
+
+// Garantir que o caminho do diretório de uploads esteja correto
+$uploadsDir = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR;
+define('UPLOADS_DIR', $uploadsDir);
 
 // Funções auxiliares
 function formatSize($bytes) {

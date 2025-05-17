@@ -1,0 +1,28 @@
+[17-May-2025 21:24:52 Europe/Berlin] Solicitação para excluir arquivo com ID: 3
+[17-May-2025 21:24:52 Europe/Berlin] Conectando ao banco de dados
+[17-May-2025 21:24:52 Europe/Berlin] Conexão com banco de dados estabelecida
+[17-May-2025 21:24:52 Europe/Berlin] Buscando informações do arquivo ID: 3
+[17-May-2025 21:24:52 Europe/Berlin] Arquivo não encontrado: 3
+[17-May-2025 21:24:52 Europe/Berlin] Exceção: Arquivo não encontrado
+#0 {main}
+[17-May-2025 21:24:57 Europe/Berlin] Solicitação para excluir arquivo com ID: 3
+[17-May-2025 21:24:57 Europe/Berlin] Conectando ao banco de dados
+[17-May-2025 21:24:57 Europe/Berlin] Conexão com banco de dados estabelecida
+[17-May-2025 21:24:57 Europe/Berlin] Buscando informações do arquivo ID: 3
+[17-May-2025 21:24:57 Europe/Berlin] Arquivo não encontrado: 3
+[17-May-2025 21:24:57 Europe/Berlin] Exceção: Arquivo não encontrado
+#0 {main}
+[17-May-2025 21:25:01 Europe/Berlin] Solicitação para excluir arquivo com ID: 2
+[17-May-2025 21:25:01 Europe/Berlin] Conectando ao banco de dados
+[17-May-2025 21:25:01 Europe/Berlin] Conexão com banco de dados estabelecida
+[17-May-2025 21:25:01 Europe/Berlin] Buscando informações do arquivo ID: 2
+[17-May-2025 21:25:01 Europe/Berlin] Arquivo não encontrado: 2
+[17-May-2025 21:25:01 Europe/Berlin] Exceção: Arquivo não encontrado
+#0 {main}
+[17-May-2025 21:26:46 Europe/Berlin] Solicitação para excluir arquivo com ID: 4
+[17-May-2025 21:26:46 Europe/Berlin] Conectando ao banco de dados
+[17-May-2025 21:26:46 Europe/Berlin] Conexão com banco de dados estabelecida
+[17-May-2025 21:26:46 Europe/Berlin] Buscando informações do arquivo ID: 4
+[17-May-2025 21:26:46 Europe/Berlin] Arquivo não encontrado: 4
+[17-May-2025 21:26:46 Europe/Berlin] Exceção: Arquivo não encontrado
+#0 {main}
