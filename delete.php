@@ -14,6 +14,10 @@ if (!isset($_GET['id']) || empty($_GET['id'])) {
 // Get file ID
 $fileId = $_GET['id'];
 
+// Get the file info to determine its folder
+$file = getFileById($fileId);
+$folder_id = $file ? ($file['folder_id'] ? $file['folder_id'] : 1) : 1;
+
 // Try to delete the file
 if (deleteFile($fileId)) {
     $_SESSION['success'] = "Arquivo excluído com sucesso.";
@@ -21,6 +25,6 @@ if (deleteFile($fileId)) {
     $_SESSION['error'] = "Erro ao excluir o arquivo.";
 }
 
-// Redirect back to index page
-header('Location: index.php');
+// Redirect back to the folder page
+header("Location: index.php?folder={$folder_id}");
 exit; 

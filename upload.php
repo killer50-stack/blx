@@ -22,10 +22,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $tmp_path = $file['tmp_name'];
         $extension = pathinfo($filename, PATHINFO_EXTENSION);
         
+        // Get folder ID (default to root if not provided)
+        $folder_id = isset($_POST['folder_id']) ? intval($_POST['folder_id']) : 1;
+        
+        // Check if the folder exists
+        $folder = getFolderById($folder_id);
+        if (!$folder) {
+            $folder_id = 1; // Default to root folder if provided folder doesn't exist
+        }
+        
         // Check if the file type is allowed
         if (!isFileTypeAllowed($extension)) {
             $_SESSION['upload_error'] = "Tipo de arquivo não permitido. Apenas imagens, vídeos e PDFs são aceitos.";
-            header('Location: index.php');
+            header("Location: index.php?folder={$folder_id}");
             exit;
         }
         
@@ -33,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $maxFileSize = 29 * 1024 * 1024 * 1024; // 29 GB in bytes
         if ($filesize > $maxFileSize) {
             $_SESSION['upload_error'] = "O arquivo excede o limite de tamanho de 29 GB.";
-            header('Location: index.php');
+            header("Location: index.php?folder={$folder_id}");
             exit;
         }
         
@@ -44,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         if ($filesize > $remainingSpace) {
             $_SESSION['upload_error'] = "Espaço de armazenamento insuficiente. Você tem " . formatSize($remainingSpace) . " disponíveis.";
-            header('Location: index.php');
+            header("Location: index.php?folder={$folder_id}");
             exit;
         }
         
@@ -54,8 +63,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         // Move the uploaded file to the destination directory
         if (move_uploaded_file($tmp_path, $uploadPath)) {
-            // Add file to database
-            if (addFileToDatabase($filename, $uniqueFilename, $filesize, $filetype)) {
+            // Add file to database with folder ID
+            if (addFileToDatabase($filename, $uniqueFilename, $filesize, $filetype, $folder_id)) {
                 $_SESSION['upload_success'] = "Arquivo enviado com sucesso!";
             } else {
                 // If database insertion fails, delete the uploaded file
@@ -81,8 +90,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         $_SESSION['upload_error'] = $errorMessage;
     }
+    
+    // Get the folder ID for redirection
+    $folder_id = isset($_POST['folder_id']) ? intval($_POST['folder_id']) : 1;
+    
+    // Redirect back to the same folder
+    header("Location: index.php?folder={$folder_id}");
+    exit;
 }
 
-// Redirect back to index page
+// Redirect back to index page if accessed directly
 header('Location: index.php');
 exit; 

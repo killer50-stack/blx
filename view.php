@@ -21,6 +21,11 @@ if (!$file) {
     exit;
 }
 
+// Get folder information
+$folder_id = $file['folder_id'] ? $file['folder_id'] : 1;
+$folder = getFolderById($folder_id);
+$folder_path = getFolderPath($folder_id);
+
 // Get file extension to determine display method
 $extension = pathinfo($file['filename'], PATHINFO_EXTENSION);
 $extension = strtolower($extension);
@@ -48,6 +53,27 @@ $isPdf = ($extension === 'pdf');
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Visualizando: <?= htmlspecialchars($file['filename']) ?></title>
     <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        .breadcrumb {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 10px 0;
+            margin-bottom: 20px;
+            list-style: none;
+            background-color: transparent;
+            border-radius: 4px;
+        }
+        .breadcrumb-item {
+            display: flex;
+            align-items: center;
+        }
+        .breadcrumb-item + .breadcrumb-item::before {
+            display: inline-block;
+            padding: 0 8px;
+            color: var(--text-light);
+            content: "/";
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -56,7 +82,19 @@ $isPdf = ($extension === 'pdf');
         </header>
         
         <main>
-            <a href="index.php" class="back-link">&laquo; Voltar para a lista de arquivos</a>
+            <a href="index.php?folder=<?= $folder_id ?>" class="back-link">&laquo; Voltar para a pasta</a>
+            
+            <!-- Breadcrumb navigation -->
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <?php foreach ($folder_path as $index => $folder): ?>
+                        <li class="breadcrumb-item">
+                            <a href="index.php?folder=<?= $folder['id'] ?>"><?= htmlspecialchars($folder['name']) ?></a>
+                        </li>
+                    <?php endforeach; ?>
+                    <li class="breadcrumb-item active"><?= htmlspecialchars($file['filename']) ?></li>
+                </ol>
+            </nav>
             
             <section>
                 <h2><?= htmlspecialchars($file['filename']) ?></h2>

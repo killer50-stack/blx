@@ -34,11 +34,17 @@ function getTotalUsedSpace() {
 /**
  * Get all files from the database
  */
-function getAllFiles() {
+function getAllFiles($folder_id = null) {
     global $db;
     
     try {
-        $stmt = $db->query("SELECT * FROM files ORDER BY uploaded_at DESC");
+        if ($folder_id === null) {
+            $stmt = $db->query("SELECT * FROM files ORDER BY uploaded_at DESC");
+        } else {
+            $stmt = $db->prepare("SELECT * FROM files WHERE folder_id = :folder_id ORDER BY uploaded_at DESC");
+            $stmt->bindParam(':folder_id', $folder_id, PDO::PARAM_INT);
+            $stmt->execute();
+        }
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     } catch (PDOException $e) {
         return [];
@@ -159,22 +165,164 @@ function generateUniqueFilename($originalName) {
 /**
  * Add a new file to the database
  */
-function addFileToDatabase($filename, $filepath, $filesize, $filetype) {
+function addFileToDatabase($filename, $filepath, $filesize, $filetype, $folder_id = 1) {
     global $db;
     
     try {
         $stmt = $db->prepare("
-            INSERT INTO files (filename, filepath, filesize, filetype) 
-            VALUES (:filename, :filepath, :filesize, :filetype)
+            INSERT INTO files (filename, filepath, filesize, filetype, folder_id) 
+            VALUES (:filename, :filepath, :filesize, :filetype, :folder_id)
         ");
         
         $stmt->bindParam(':filename', $filename, PDO::PARAM_STR);
         $stmt->bindParam(':filepath', $filepath, PDO::PARAM_STR);
         $stmt->bindParam(':filesize', $filesize, PDO::PARAM_INT);
         $stmt->bindParam(':filetype', $filetype, PDO::PARAM_STR);
+        $stmt->bindParam(':folder_id', $folder_id, PDO::PARAM_INT);
         
         return $stmt->execute();
     } catch (PDOException $e) {
         return false;
     }
+}
+
+/**
+ * Get all folders
+ */
+function getAllFolders($parent_id = null) {
+    global $db;
+    
+    try {
+        if ($parent_id === null) {
+            $stmt = $db->query("SELECT * FROM folders ORDER BY name ASC");
+        } else {
+            $stmt = $db->prepare("SELECT * FROM folders WHERE parent_id = :parent_id ORDER BY name ASC");
+            $stmt->bindParam(':parent_id', $parent_id, PDO::PARAM_INT);
+            $stmt->execute();
+        }
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        return [];
+    }
+}
+
+/**
+ * Get a folder by ID
+ */
+function getFolderById($id) {
+    global $db;
+    
+    try {
+        $stmt = $db->prepare("SELECT * FROM folders WHERE id = :id");
+        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        return false;
+    }
+}
+
+/**
+ * Create a new folder
+ */
+function createFolder($name, $parent_id = 1) {
+    global $db;
+    
+    try {
+        $stmt = $db->prepare("
+            INSERT INTO folders (name, parent_id) 
+            VALUES (:name, :parent_id)
+        ");
+        
+        $stmt->bindParam(':name', $name, PDO::PARAM_STR);
+        $stmt->bindParam(':parent_id', $parent_id, PDO::PARAM_INT);
+        
+        $stmt->execute();
+        return $db->lastInsertId();
+    } catch (PDOException $e) {
+        return false;
+    }
+}
+
+/**
+ * Delete a folder and its contents
+ */
+function deleteFolder($id) {
+    global $db;
+    
+    if ($id == 1) {
+        // Never delete the root folder
+        return false;
+    }
+    
+    try {
+        $db->beginTransaction();
+        
+        // Get all files in the folder
+        $files = getAllFiles($id);
+        foreach ($files as $file) {
+            deleteFile($file['id']);
+        }
+        
+        // Get all subfolders
+        $subfolders = getAllFolders($id);
+        foreach ($subfolders as $subfolder) {
+            deleteFolder($subfolder['id']);
+        }
+        
+        // Delete the folder
+        $stmt = $db->prepare("DELETE FROM folders WHERE id = :id");
+        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+        $stmt->execute();
+        
+        $db->commit();
+        return true;
+    } catch (PDOException $e) {
+        $db->rollBack();
+        return false;
+    }
+}
+
+/**
+ * Move a file to a different folder
+ */
+function moveFile($file_id, $folder_id) {
+    global $db;
+    
+    try {
+        $stmt = $db->prepare("
+            UPDATE files 
+            SET folder_id = :folder_id 
+            WHERE id = :file_id
+        ");
+        
+        $stmt->bindParam(':file_id', $file_id, PDO::PARAM_INT);
+        $stmt->bindParam(':folder_id', $folder_id, PDO::PARAM_INT);
+        
+        return $stmt->execute();
+    } catch (PDOException $e) {
+        return false;
+    }
+}
+
+/**
+ * Get folder path (breadcrumb)
+ */
+function getFolderPath($folder_id) {
+    global $db;
+    
+    $path = [];
+    $current_id = $folder_id;
+    
+    while ($current_id) {
+        $folder = getFolderById($current_id);
+        if (!$folder) {
+            break;
+        }
+        
+        array_unshift($path, $folder);
+        $current_id = $folder['parent_id'];
+    }
+    
+    return $path;
 } 
