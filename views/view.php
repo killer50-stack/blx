@@ -158,10 +158,27 @@ try {
                 </div>
             <?php elseif ($viewerType === 'video' && $fileExists): ?>
                 <div class="video-container">
-                    <video controls>
+                    <video controls width="100%" height="auto" preload="metadata">
                         <source src="<?php echo $filePath; ?>" type="<?php echo $fileType; ?>">
-                        Seu navegador não suporta a reprodução deste vídeo.
+                        <p>Seu navegador não suporta a reprodução deste vídeo.</p>
+                        
+                        <!-- Link alternativo -->
+                        <a href="<?php echo $filePath; ?>" download class="btn" style="margin-top: 1rem;">
+                            <i class="fas fa-download"></i> Baixar Vídeo
+                        </a>
                     </video>
+                </div>
+                
+                <!-- Backup - iframe para vídeos MP4 -->
+                <div style="margin-top: 20px;">
+                    <p><strong>Se o vídeo acima não aparecer, tente esta versão alternativa:</strong></p>
+                    <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+                        <iframe style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" 
+                                src="<?php echo $filePath; ?>" 
+                                frameborder="0" 
+                                allowfullscreen>
+                        </iframe>
+                    </div>
                 </div>
             <?php elseif ($viewerType === 'pdf' && $fileExists): ?>
                 <div class="pdf-container">

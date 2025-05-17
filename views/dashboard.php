@@ -130,6 +130,11 @@ try {
                             </div>
                             <div class="file-actions">
                                 <a href="view.php?id=<?php echo $file['id']; ?>" class="btn btn-secondary">Visualizar</a>
+                                <?php if (strpos($file['file_type'], 'video/') === 0): ?>
+                                <a href="../visualizador_avancado.php?id=<?php echo $file['id']; ?>" class="btn btn-secondary" style="background-color: #795548;">
+                                    <i class="fas fa-film"></i> Player Avançado
+                                </a>
+                                <?php endif; ?>
                                 <button class="btn btn-danger delete-file" data-id="<?php echo $file['id']; ?>">Excluir</button>
                             </div>
                         </div>

@@ -1,0 +1,19 @@
+# Permitir acesso aos arquivos
+Options +FollowSymLinks
+Options -Indexes
+
+# Configurar tipos MIME para vídeos
+AddType video/mp4 .mp4
+AddType video/webm .webm
+AddType video/ogg .ogv
+
+# Permitir acesso direto aos arquivos
+<FilesMatch "\.(mp4|webm|ogv|jpg|jpeg|png|gif|pdf)$">
+    Order Allow,Deny
+    Allow from all
+</FilesMatch>
+
+# Aumentar o limite de tempo para arquivos grandes
+<IfModule mod_php.c>
+    php_value max_execution_time 300
+</IfModule> 

@@ -52,3 +52,27 @@
 [17-May-2025 21:26:30 Europe/Berlin] Informações do arquivo inseridas no banco de dados
 [17-May-2025 21:26:30 Europe/Berlin] Estatísticas de armazenamento atualizadas
 [17-May-2025 21:26:30 Europe/Berlin] Enviando resposta de sucesso: {"success":true,"message":"Arquivo enviado com sucesso.","file_id":"4","file_path":"uploads\/files\/6828e2e63b89d_1747509990.mp4"}
+[17-May-2025 21:34:07 Europe/Berlin] Arquivo recebido: Naruto Shippuden EP 1x1.mp4, tipo: video/mp4, tamanho: 97891261
+[17-May-2025 21:34:07 Europe/Berlin] Tentando conectar ao banco de dados
+[17-May-2025 21:34:07 Europe/Berlin] Conexão com banco de dados estabelecida
+[17-May-2025 21:34:07 Europe/Berlin] Verificando espaço de armazenamento
+[17-May-2025 21:34:07 Europe/Berlin] Espaço utilizado: 391565044 de 1072668082176
+[17-May-2025 21:34:07 Europe/Berlin] Tentando mover arquivo para: C:\xampp\htdocs\Nova pasta (6)\uploads\files\6828e4af1431b_1747510447.mp4
+[17-May-2025 21:34:07 Europe/Berlin] Arquivo movido com sucesso para: C:\xampp\htdocs\Nova pasta (6)\uploads\files\6828e4af1431b_1747510447.mp4
+[17-May-2025 21:34:07 Europe/Berlin] Inserindo informações no banco de dados
+[17-May-2025 21:34:07 Europe/Berlin] Tabela 'files' não encontrada, recriando...
+[17-May-2025 21:34:07 Europe/Berlin] Informações do arquivo inseridas no banco de dados
+[17-May-2025 21:34:07 Europe/Berlin] Estatísticas de armazenamento atualizadas
+[17-May-2025 21:34:07 Europe/Berlin] Enviando resposta de sucesso: {"success":true,"message":"Arquivo enviado com sucesso.","file_id":"5","file_path":"uploads\/files\/6828e4af1431b_1747510447.mp4"}
+[17-May-2025 21:36:26 Europe/Berlin] Arquivo recebido: Naruto Shippuden EP 1x1.mp4, tipo: video/mp4, tamanho: 97891261
+[17-May-2025 21:36:26 Europe/Berlin] Tentando conectar ao banco de dados
+[17-May-2025 21:36:26 Europe/Berlin] Conexão com banco de dados estabelecida
+[17-May-2025 21:36:26 Europe/Berlin] Verificando espaço de armazenamento
+[17-May-2025 21:36:26 Europe/Berlin] Espaço utilizado: 489456305 de 1072668082176
+[17-May-2025 21:36:26 Europe/Berlin] Tentando mover arquivo para: C:\xampp\htdocs\Nova pasta (6)\uploads\files\6828e53a9ee00_1747510586.mp4
+[17-May-2025 21:36:26 Europe/Berlin] Arquivo movido com sucesso para: C:\xampp\htdocs\Nova pasta (6)\uploads\files\6828e53a9ee00_1747510586.mp4
+[17-May-2025 21:36:26 Europe/Berlin] Inserindo informações no banco de dados
+[17-May-2025 21:36:26 Europe/Berlin] Tabela 'files' não encontrada, recriando...
+[17-May-2025 21:36:26 Europe/Berlin] Informações do arquivo inseridas no banco de dados
+[17-May-2025 21:36:26 Europe/Berlin] Estatísticas de armazenamento atualizadas
+[17-May-2025 21:36:26 Europe/Berlin] Enviando resposta de sucesso: {"success":true,"message":"Arquivo enviado com sucesso.","file_id":"6","file_path":"uploads\/files\/6828e53a9ee00_1747510586.mp4"}
