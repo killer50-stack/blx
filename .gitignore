@@ -1,0 +1,23 @@
+# Database
+/db/*.db
+/db/*.sqlite
+/db/*.sqlite3
+
+# Arquivos de upload
+/uploads/files/*
+!/uploads/files/.gitkeep
+
+# Arquivos de configuração sensíveis
+config.php.bak
+
+# Arquivos temporários
+*.tmp
+*.temp
+*.bak
+*.swp
+
+# Arquivos do sistema operacional
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini 

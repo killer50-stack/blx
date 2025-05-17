@@ -1,104 +1,166 @@
 <?php
-// Initialize the session and include required files
+// Iniciar sessão
 session_start();
-require_once 'config/db.php';
-require_once 'includes/functions.php';
 
-// Create uploads directory if it doesn't exist
-if (!file_exists('uploads')) {
-    mkdir('uploads', 0777, true);
-}
+// Incluir arquivos de configuração
+require_once 'config/config.php';
+require_once 'config/database.php';
 
-// Check if the form was submitted
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Check if a file was uploaded
-    if (isset($_FILES['file']) && $_FILES['file']['error'] === UPLOAD_ERR_OK) {
-        $file = $_FILES['file'];
-        
-        // Get file information
-        $filename = $file['name'];
-        $filesize = $file['size'];
-        $filetype = $file['type'];
-        $tmp_path = $file['tmp_name'];
-        $extension = pathinfo($filename, PATHINFO_EXTENSION);
-        
-        // Get folder ID (default to root if not provided)
-        $folder_id = isset($_POST['folder_id']) ? intval($_POST['folder_id']) : 1;
-        
-        // Check if the folder exists
-        $folder = getFolderById($folder_id);
-        if (!$folder) {
-            $folder_id = 1; // Default to root folder if provided folder doesn't exist
-        }
-        
-        // Check if the file type is allowed
-        if (!isFileTypeAllowed($extension)) {
-            $_SESSION['upload_error'] = "Tipo de arquivo não permitido. Apenas imagens, vídeos e PDFs são aceitos.";
-            header("Location: index.php?folder={$folder_id}");
-            exit;
-        }
-        
-        // Check file size (29 GB limit)
-        $maxFileSize = 29 * 1024 * 1024 * 1024; // 29 GB in bytes
-        if ($filesize > $maxFileSize) {
-            $_SESSION['upload_error'] = "O arquivo excede o limite de tamanho de 29 GB.";
-            header("Location: index.php?folder={$folder_id}");
-            exit;
-        }
-        
-        // Check if user has enough storage space
-        $maxStorage = 999 * 1024 * 1024 * 1024; // 999 GB in bytes
-        $usedSpace = getTotalUsedSpace();
-        $remainingSpace = $maxStorage - $usedSpace;
-        
-        if ($filesize > $remainingSpace) {
-            $_SESSION['upload_error'] = "Espaço de armazenamento insuficiente. Você tem " . formatSize($remainingSpace) . " disponíveis.";
-            header("Location: index.php?folder={$folder_id}");
-            exit;
-        }
-        
-        // Generate a unique filename to prevent overwriting
-        $uniqueFilename = generateUniqueFilename($filename);
-        $uploadPath = 'uploads/' . $uniqueFilename;
-        
-        // Move the uploaded file to the destination directory
-        if (move_uploaded_file($tmp_path, $uploadPath)) {
-            // Add file to database with folder ID
-            if (addFileToDatabase($filename, $uniqueFilename, $filesize, $filetype, $folder_id)) {
-                $_SESSION['upload_success'] = "Arquivo enviado com sucesso!";
-            } else {
-                // If database insertion fails, delete the uploaded file
-                unlink($uploadPath);
-                $_SESSION['upload_error'] = "Erro ao salvar o arquivo no banco de dados.";
-            }
-        } else {
-            $_SESSION['upload_error'] = "Erro ao mover o arquivo para o destino final.";
-        }
-    } else {
-        $errorMessages = [
-            UPLOAD_ERR_INI_SIZE => "O arquivo excede o tamanho máximo permitido pelo servidor.",
-            UPLOAD_ERR_FORM_SIZE => "O arquivo excede o tamanho máximo permitido pelo formulário.",
-            UPLOAD_ERR_PARTIAL => "O arquivo foi enviado parcialmente.",
-            UPLOAD_ERR_NO_FILE => "Nenhum arquivo foi enviado.",
-            UPLOAD_ERR_NO_TMP_DIR => "Diretório temporário não encontrado.",
-            UPLOAD_ERR_CANT_WRITE => "Falha ao gravar o arquivo no disco.",
-            UPLOAD_ERR_EXTENSION => "Uma extensão PHP impediu o upload do arquivo."
-        ];
-        
-        $errorCode = isset($_FILES['file']) ? $_FILES['file']['error'] : UPLOAD_ERR_NO_FILE;
-        $errorMessage = isset($errorMessages[$errorCode]) ? $errorMessages[$errorCode] : "Erro desconhecido ao enviar o arquivo.";
-        
-        $_SESSION['upload_error'] = $errorMessage;
+// Definir cabeçalho para resposta JSON
+header('Content-Type: application/json');
+
+// Verificar se o arquivo foi enviado
+if (!isset($_FILES['file']) || $_FILES['file']['error'] != UPLOAD_ERR_OK) {
+    $errorMessage = "Erro no upload: ";
+    
+    switch ($_FILES['file']['error']) {
+        case UPLOAD_ERR_INI_SIZE:
+        case UPLOAD_ERR_FORM_SIZE:
+            $errorMessage .= "O arquivo excede o tamanho máximo permitido.";
+            break;
+        case UPLOAD_ERR_PARTIAL:
+            $errorMessage .= "O upload do arquivo foi feito parcialmente.";
+            break;
+        case UPLOAD_ERR_NO_FILE:
+            $errorMessage .= "Nenhum arquivo foi enviado.";
+            break;
+        case UPLOAD_ERR_NO_TMP_DIR:
+            $errorMessage .= "Pasta temporária ausente.";
+            break;
+        case UPLOAD_ERR_CANT_WRITE:
+            $errorMessage .= "Falha ao gravar arquivo em disco.";
+            break;
+        case UPLOAD_ERR_EXTENSION:
+            $errorMessage .= "Uma extensão PHP interrompeu o upload do arquivo.";
+            break;
+        default:
+            $errorMessage .= "Erro desconhecido.";
+            break;
     }
     
-    // Get the folder ID for redirection
-    $folder_id = isset($_POST['folder_id']) ? intval($_POST['folder_id']) : 1;
-    
-    // Redirect back to the same folder
-    header("Location: index.php?folder={$folder_id}");
-    exit;
+    echo json_encode([
+        'success' => false,
+        'message' => $errorMessage
+    ]);
+    exit();
 }
 
-// Redirect back to index page if accessed directly
-header('Location: index.php');
-exit; 
+// Verificar tipo de arquivo
+$file = $_FILES['file'];
+$fileType = $file['type'];
+
+if (!isValidFileType($fileType)) {
+    echo json_encode([
+        'success' => false,
+        'message' => 'Tipo de arquivo não permitido. Use apenas imagens, vídeos ou PDFs.'
+    ]);
+    exit();
+}
+
+// Verificar tamanho do arquivo (limite de 29 GB)
+if ($file['size'] > MAX_UPLOAD_SIZE) {
+    echo json_encode([
+        'success' => false,
+        'message' => 'O arquivo excede o tamanho máximo permitido (29 GB).'
+    ]);
+    exit();
+}
+
+// Conectar ao banco de dados
+$database = new Database();
+$db = $database->getConnection();
+
+// Verificar espaço de armazenamento disponível
+try {
+    $stmt = $db->prepare('SELECT total_size, max_size FROM storage_stats WHERE id = 1');
+    $stmt->execute();
+    $storageStats = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    $totalSize = $storageStats['total_size'] ?? 0;
+    $maxSize = $storageStats['max_size'] ?? MAX_STORAGE_SIZE;
+    
+    // Verificar se há espaço suficiente
+    if ($totalSize + $file['size'] > $maxSize) {
+        echo json_encode([
+            'success' => false,
+            'message' => 'Espaço de armazenamento insuficiente. Exclua alguns arquivos antes de enviar novos.'
+        ]);
+        exit();
+    }
+    
+} catch (PDOException $e) {
+    echo json_encode([
+        'success' => false,
+        'message' => 'Erro ao verificar espaço de armazenamento: ' . $e->getMessage()
+    ]);
+    exit();
+}
+
+// Processar upload do arquivo
+try {
+    // Garantir que o diretório de uploads existe
+    if (!file_exists(UPLOADS_DIR)) {
+        mkdir(UPLOADS_DIR, 0777, true);
+    }
+    
+    // Gerar nome de arquivo único
+    $originalFilename = $file['name'];
+    $fileExtension = pathinfo($originalFilename, PATHINFO_EXTENSION);
+    $filename = uniqid() . '_' . time() . '.' . $fileExtension;
+    $filePath = 'uploads/files/' . $filename;
+    $fullPath = UPLOADS_DIR . $filename;
+    
+    // Mover arquivo para diretório final
+    if (!move_uploaded_file($file['tmp_name'], $fullPath)) {
+        echo json_encode([
+            'success' => false,
+            'message' => 'Erro ao mover arquivo para o diretório final.'
+        ]);
+        exit();
+    }
+    
+    // Salvar informações no banco de dados
+    $stmt = $db->prepare('
+        INSERT INTO files (filename, original_filename, file_type, file_size, file_path, upload_date)
+        VALUES (:filename, :original_filename, :file_type, :file_size, :file_path, datetime("now"))
+    ');
+    
+    $stmt->bindParam(':filename', $filename);
+    $stmt->bindParam(':original_filename', $originalFilename);
+    $stmt->bindParam(':file_type', $fileType);
+    $stmt->bindParam(':file_size', $file['size']);
+    $stmt->bindParam(':file_path', $filePath);
+    
+    $stmt->execute();
+    
+    // Atualizar estatísticas de armazenamento
+    $stmt = $db->prepare('
+        UPDATE storage_stats 
+        SET total_size = total_size + :file_size, last_update = datetime("now")
+        WHERE id = 1
+    ');
+    
+    $stmt->bindParam(':file_size', $file['size']);
+    $stmt->execute();
+    
+    // Responder sucesso
+    echo json_encode([
+        'success' => true,
+        'message' => 'Arquivo enviado com sucesso.',
+        'file_id' => $db->lastInsertId(),
+        'file_path' => $filePath
+    ]);
+    
+} catch (PDOException $e) {
+    echo json_encode([
+        'success' => false,
+        'message' => 'Erro ao processar upload: ' . $e->getMessage()
+    ]);
+    
+    // Remover arquivo se ocorrer erro no banco de dados
+    if (isset($fullPath) && file_exists($fullPath)) {
+        @unlink($fullPath);
+    }
+    
+    exit();
+} 
