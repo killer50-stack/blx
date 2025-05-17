@@ -38,6 +38,9 @@ $remainingSpace = $maxStorage - $totalUsedSpace;
                     <?= formatSize($totalUsedSpace) ?> / 999 GB usado
                 </div>
             </div>
+            <nav class="main-nav">
+                <a href="git-info.php" class="btn">Informações Git</a>
+            </nav>
         </header>
 
         <?php

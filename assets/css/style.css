@@ -70,6 +70,17 @@ header h1 {
     text-align: right;
 }
 
+.main-nav {
+    margin-top: 15px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.main-nav .btn {
+    font-size: 14px;
+    padding: 8px 15px;
+}
+
 /* Main Content */
 main {
     display: grid;

@@ -10,6 +10,7 @@ Um sistema de armazenamento de arquivos completo desenvolvido com PHP e SQLite.
 - Limite de 29 GB por arquivo enviado
 - Listagem e organização dos arquivos enviados
 - Opção para excluir arquivos
+- Integração com Git para controle de versão
 - Interface de usuário simples e intuitiva com tema marrom
 
 ## Requisitos
@@ -42,6 +43,8 @@ arquivo-virtual/
 │   └── functions.php
 ├── uploads/ (gerado automaticamente)
 ├── delete.php
+├── git-command.php
+├── git-info.php
 ├── index.php
 ├── upload.php
 ├── view.php
@@ -62,6 +65,12 @@ Por padrão, ele define os seguintes limites:
 2. Clique em "Enviar Arquivo" para fazer o upload.
 3. Na seção "Seus Arquivos", você pode visualizar, baixar ou excluir os arquivos.
 4. A barra de armazenamento no topo mostra quanto espaço você já usou.
+5. Clique em "Informações Git" para acessar o painel de controle do Git, onde você pode:
+   - Ver o status atual do repositório
+   - Adicionar arquivos ao commit
+   - Realizar commits
+   - Push para repositório remoto
+   - Pull de atualizações
 
 ## Observações
 
